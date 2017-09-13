@@ -1,0 +1,6 @@
+[package]
+name = "aggregated-stats"
+version = "0.1.0"
+authors = ["Pixelistik <code@pixelistik.de>"]
+
+[dependencies]
