@@ -1,14 +1,36 @@
 struct AggregatedStats {
     values: Vec<usize>,
+    max_size: usize,
 }
 
 impl AggregatedStats {
     fn new() -> AggregatedStats {
-        AggregatedStats { values: vec![] }
+        AggregatedStats {
+            values: vec![],
+            max_size: 10000,
+        }
+    }
+
+    fn with_capacity(capacity: usize) -> AggregatedStats {
+        AggregatedStats {
+            values: vec![],
+            max_size: capacity,
+        }
     }
 
     fn add(&mut self, value: usize) {
-        self.values.push(value);
+        if self.values.len() < self.max_size {
+            self.values.push(value);
+        } else {
+            self.values.sort();
+            let index = match self.values.binary_search(&value) {
+                Ok(index) => index,
+                Err(index) => index,
+            };
+
+            self.values.push(value);
+            self.values.swap_remove(index - 1);
+        }
     }
 
     fn max(&self) -> Option<&usize> {
@@ -72,5 +94,18 @@ mod tests {
 
         assert_eq!(*stats.quantile(0.25).unwrap(), 5);
         assert_eq!(*stats.quantile(0.75).unwrap(), 10);
+    }
+
+    #[test]
+    fn test_median_approximate() {
+        let mut stats = AggregatedStats::with_capacity(3);
+        stats.add(2);
+        stats.add(4);
+        stats.add(6);
+
+        stats.add(5);
+
+        assert_eq!(*stats.median().unwrap(), 5);
+        assert_eq!(stats.values.len(), 3);
     }
 }
