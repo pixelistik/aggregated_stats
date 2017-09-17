@@ -55,15 +55,15 @@ impl AggregatedStats {
         self.min
     }
 
-    fn median(&mut self) -> Option<&usize> {
+    fn median(&mut self) -> Option<usize> {
         self.quantile(0.5)
     }
 
-    fn quantile(&mut self, quantile: f32) -> Option<&usize> {
+    fn quantile(&mut self, quantile: f32) -> Option<usize> {
         self.values.sort();
 
         let index = (self.values.len() as f32 * quantile - 1.0).ceil() as usize;
-        Some(&self.values[index])
+        Some(self.values[index])
     }
 }
 
@@ -95,7 +95,7 @@ mod tests {
         stats.add(11);
         stats.add(9);
 
-        assert_eq!(*stats.median().unwrap(), 10);
+        assert_eq!(stats.median().unwrap(), 10);
     }
 
     #[test]
@@ -106,9 +106,9 @@ mod tests {
         stats.add(9);
         stats.add(5);
 
-        assert_eq!(*stats.quantile(0.25).unwrap(), 5);
-        assert_eq!(*stats.quantile(0.75).unwrap(), 10);
-        assert_eq!(*stats.quantile(1.0).unwrap(), 11);
+        assert_eq!(stats.quantile(0.25).unwrap(), 5);
+        assert_eq!(stats.quantile(0.75).unwrap(), 10);
+        assert_eq!(stats.quantile(1.0).unwrap(), 11);
 
     }
 
@@ -121,7 +121,7 @@ mod tests {
 
         stats.add(3);
 
-        assert_eq!(*stats.median().unwrap(), 3);
+        assert_eq!(stats.median().unwrap(), 3);
         assert_eq!(stats.values.len(), 3);
     }
 
