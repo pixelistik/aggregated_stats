@@ -1,5 +1,5 @@
 struct AggregatedStats {
-    values: Vec<usize>,
+    value_buffer: Vec<usize>,
     value_count: usize,
     max_size: usize,
     max: Option<usize>,
@@ -14,7 +14,7 @@ impl AggregatedStats {
 
     fn with_capacity(capacity: usize) -> AggregatedStats {
         AggregatedStats {
-            values: vec![],
+            value_buffer: vec![],
             value_count: 0,
             max_size: capacity,
             max: None,
@@ -40,17 +40,17 @@ impl AggregatedStats {
             None => Some(value as f32),
         };
 
-        if self.values.len() < self.max_size {
-            self.values.push(value);
+        if self.value_buffer.len() < self.max_size {
+            self.value_buffer.push(value);
         } else {
-            self.values.sort();
-            let index = match self.values.binary_search(&value) {
+            self.value_buffer.sort();
+            let index = match self.value_buffer.binary_search(&value) {
                 Ok(index) => index,
                 Err(index) => index,
             };
 
-            self.values.push(value);
-            self.values.swap_remove(index);
+            self.value_buffer.push(value);
+            self.value_buffer.swap_remove(index);
         }
 
         self.value_count = self.value_count + 1;
@@ -69,10 +69,10 @@ impl AggregatedStats {
     }
 
     fn quantile(&mut self, quantile: f32) -> Option<usize> {
-        self.values.sort();
+        self.value_buffer.sort();
 
-        let index = (self.values.len() as f32 * quantile - 1.0).ceil() as usize;
-        Some(self.values[index])
+        let index = (self.value_buffer.len() as f32 * quantile - 1.0).ceil() as usize;
+        Some(self.value_buffer[index])
     }
 
     fn average(&self) -> Option<f32> {
@@ -135,7 +135,7 @@ mod tests {
         stats.add(3);
 
         assert_eq!(stats.median().unwrap(), 3);
-        assert_eq!(stats.values.len(), 3);
+        assert_eq!(stats.value_buffer.len(), 3);
     }
 
     #[test]
