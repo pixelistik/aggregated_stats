@@ -1,6 +1,8 @@
 struct AggregatedStats {
     values: Vec<usize>,
     max_size: usize,
+    max: Option<usize>,
+    min: Option<usize>,
 }
 
 impl AggregatedStats {
@@ -8,6 +10,8 @@ impl AggregatedStats {
         AggregatedStats {
             values: vec![],
             max_size: 10000,
+            max: None,
+            min: None,
         }
     }
 
@@ -15,6 +19,8 @@ impl AggregatedStats {
         AggregatedStats {
             values: vec![],
             max_size: capacity,
+            max: None,
+            min: None,
         }
     }
 
@@ -31,14 +37,22 @@ impl AggregatedStats {
             self.values.push(value);
             self.values.swap_remove(index - 1);
         }
+
+        if self.max.is_none() || value > self.max.unwrap() {
+            self.max = Some(value);
+        }
+
+        if self.min.is_none() || value < self.min.unwrap() {
+            self.min = Some(value);
+        }
     }
 
-    fn max(&self) -> Option<&usize> {
-        self.values.iter().max()
+    fn max(&self) -> Option<usize> {
+        self.max
     }
 
-    fn min(&self) -> Option<&usize> {
-        self.values.iter().min()
+    fn min(&self) -> Option<usize> {
+        self.min
     }
 
     fn median(&mut self) -> Option<&usize> {
@@ -70,8 +84,8 @@ mod tests {
         stats.add(11);
         stats.add(9);
 
-        assert_eq!(*stats.max().unwrap(), 11);
-        assert_eq!(*stats.min().unwrap(), 9);
+        assert_eq!(stats.max().unwrap(), 11);
+        assert_eq!(stats.min().unwrap(), 9);
     }
 
     #[test]
