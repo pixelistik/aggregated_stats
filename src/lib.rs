@@ -35,7 +35,7 @@ impl AggregatedStats {
             };
 
             self.values.push(value);
-            self.values.swap_remove(index - 1);
+            self.values.swap_remove(index);
         }
 
         if self.max.is_none() || value > self.max.unwrap() {
@@ -117,9 +117,23 @@ mod tests {
         stats.add(4);
         stats.add(6);
 
-        stats.add(5);
+        stats.add(3);
 
-        assert_eq!(*stats.median().unwrap(), 5);
+        assert_eq!(*stats.median().unwrap(), 3);
         assert_eq!(stats.values.len(), 3);
+    }
+
+    #[test]
+    fn test_min_max_with_limited_capacity() {
+        let mut stats = AggregatedStats::with_capacity(2);
+        stats.add(10);
+        stats.add(11);
+        stats.add(12);
+
+        stats.add(1);
+        stats.add(100);
+
+        assert_eq!(stats.max().unwrap(), 100);
+        assert_eq!(stats.min().unwrap(), 1);
     }
 }
