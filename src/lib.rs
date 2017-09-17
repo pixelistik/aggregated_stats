@@ -108,6 +108,8 @@ mod tests {
 
         assert_eq!(*stats.quantile(0.25).unwrap(), 5);
         assert_eq!(*stats.quantile(0.75).unwrap(), 10);
+        assert_eq!(*stats.quantile(1.0).unwrap(), 11);
+
     }
 
     #[test]
