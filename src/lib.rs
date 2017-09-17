@@ -1,30 +1,52 @@
 struct AggregatedStats {
     values: Vec<usize>,
+    value_count: usize,
     max_size: usize,
     max: Option<usize>,
     min: Option<usize>,
+    average: Option<f32>,
 }
 
 impl AggregatedStats {
     fn new() -> AggregatedStats {
         AggregatedStats {
             values: vec![],
+            value_count: 0,
             max_size: 10000,
             max: None,
             min: None,
+            average: None,
         }
     }
 
     fn with_capacity(capacity: usize) -> AggregatedStats {
         AggregatedStats {
             values: vec![],
+            value_count: 0,
             max_size: capacity,
             max: None,
             min: None,
+            average: None,
         }
     }
 
     fn add(&mut self, value: usize) {
+        if self.max.is_none() || value > self.max.unwrap() {
+            self.max = Some(value);
+        }
+
+        if self.min.is_none() || value < self.min.unwrap() {
+            self.min = Some(value);
+        }
+
+        self.average = match self.average {
+            Some(current_average) => {
+                Some((current_average * self.value_count as f32 + value as f32) /
+                     (self.value_count as f32 + 1.0))
+            }
+            None => Some(value as f32),
+        };
+
         if self.values.len() < self.max_size {
             self.values.push(value);
         } else {
@@ -38,13 +60,7 @@ impl AggregatedStats {
             self.values.swap_remove(index);
         }
 
-        if self.max.is_none() || value > self.max.unwrap() {
-            self.max = Some(value);
-        }
-
-        if self.min.is_none() || value < self.min.unwrap() {
-            self.min = Some(value);
-        }
+        self.value_count = self.value_count + 1;
     }
 
     fn max(&self) -> Option<usize> {
@@ -64,6 +80,10 @@ impl AggregatedStats {
 
         let index = (self.values.len() as f32 * quantile - 1.0).ceil() as usize;
         Some(self.values[index])
+    }
+
+    fn average(&self) -> Option<f32> {
+        self.average
     }
 }
 
@@ -137,5 +157,18 @@ mod tests {
 
         assert_eq!(stats.max().unwrap(), 100);
         assert_eq!(stats.min().unwrap(), 1);
+    }
+
+    #[test]
+    fn test_average() {
+        let mut stats = AggregatedStats::with_capacity(1);
+        stats.add(10);
+        assert_eq!(stats.average().unwrap(), 10.0);
+
+        stats.add(0);
+        assert_eq!(stats.average().unwrap(), 5.0);
+
+        stats.add(110);
+        assert_eq!(stats.average().unwrap(), 40.0);
     }
 }
