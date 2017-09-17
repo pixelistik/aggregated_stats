@@ -9,14 +9,7 @@ struct AggregatedStats {
 
 impl AggregatedStats {
     fn new() -> AggregatedStats {
-        AggregatedStats {
-            values: vec![],
-            value_count: 0,
-            max_size: 10000,
-            max: None,
-            min: None,
-            average: None,
-        }
+        Self::with_capacity(10000)
     }
 
     fn with_capacity(capacity: usize) -> AggregatedStats {
