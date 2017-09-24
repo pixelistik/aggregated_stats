@@ -69,6 +69,17 @@ impl AggregatedStats {
     }
 
     fn quantile(&mut self, quantile: f32) -> Option<f32> {
+        if self.value_buffer.is_empty() {
+            return None;
+        }
+
+        if quantile == 1.0 {
+            return match self.max() {
+                Some(max) => Some(max as f32),
+                None => None,
+            };
+        }
+
         self.value_buffer.sort();
 
         let np = self.value_buffer.len() as f32 * quantile;
@@ -130,6 +141,9 @@ mod tests {
     #[test]
     fn test_quantile() {
         let mut stats = AggregatedStats::new();
+
+        assert!(stats.quantile(0.5).is_none());
+
         stats.add(10);
         stats.add(11);
         stats.add(9);
@@ -137,7 +151,7 @@ mod tests {
 
         assert_eq!(stats.quantile(0.25).unwrap(), 7.0);
         assert_eq!(stats.quantile(0.75).unwrap(), 10.5);
-        // assert_eq!(stats.quantile(1.0).unwrap(), 11.0);
+        assert_eq!(stats.quantile(1.0).unwrap(), 11.0);
 
     }
 
