@@ -72,13 +72,11 @@ impl AggregatedStats {
         self.value_buffer.sort();
 
         let np = self.value_buffer.len() as f32 * quantile;
+        let index = np.floor() as usize - 1;
 
         Some(match np - np.floor() {
-            0.0 => {
-                (self.value_buffer[np.floor() as usize - 1] +
-                 self.value_buffer[np.floor() as usize]) as f32 / 2.0
-            }
-            _ => self.value_buffer[np.floor() as usize] as f32,
+            0.0 => (self.value_buffer[index] + self.value_buffer[index + 1]) as f32 / 2.0,
+            _ => self.value_buffer[index + 1] as f32,
         })
     }
 
