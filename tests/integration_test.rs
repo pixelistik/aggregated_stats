@@ -112,3 +112,11 @@ fn test_count_more_than_capacity() {
     stats.add(11);
     assert_eq!(stats.count(), 2);
 }
+
+#[test]
+fn test_no_overflow() {
+    let mut stats = AggregatedStats::new();
+
+    stats.add(10);
+    assert_eq!(stats.median().unwrap(), 10.0);
+}

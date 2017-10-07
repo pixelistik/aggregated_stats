@@ -73,6 +73,10 @@ impl AggregatedStats {
             return None;
         }
 
+        if self.value_buffer.len() == 1 {
+            return Some(self.value_buffer[0] as f32);
+        }
+
         if quantile == 1.0 {
             return match self.max() {
                 Some(max) => Some(max as f32),
