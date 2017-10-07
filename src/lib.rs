@@ -94,6 +94,10 @@ impl AggregatedStats {
     pub fn average(&self) -> Option<f32> {
         self.average
     }
+
+    pub fn count(&self) -> usize {
+        self.value_count
+    }
 }
 
 

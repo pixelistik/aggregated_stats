@@ -94,3 +94,21 @@ fn test_average() {
     stats.add(110);
     assert_eq!(stats.average().unwrap(), 40.0);
 }
+
+#[test]
+fn test_count() {
+    let mut stats = AggregatedStats::new();
+    assert_eq!(stats.count(), 0);
+
+    stats.add(10);
+    assert_eq!(stats.count(), 1);
+}
+
+#[test]
+fn test_count_more_than_capacity() {
+    let mut stats = AggregatedStats::with_capacity(1);
+
+    stats.add(10);
+    stats.add(11);
+    assert_eq!(stats.count(), 2);
+}
