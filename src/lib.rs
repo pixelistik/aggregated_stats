@@ -89,10 +89,11 @@ impl AggregatedStats {
         let np = self.value_buffer.len() as f32 * quantile;
         let index = np.floor() as usize - 1;
 
-        Some(match np - np.floor() {
-            0.0 => (self.value_buffer[index] + self.value_buffer[index + 1]) as f32 / 2.0,
-            _ => self.value_buffer[index + 1] as f32,
-        })
+        if np - np.floor() > 0.0 {
+            return Some(self.value_buffer[index + 1] as f32);
+        } else {
+            return Some((self.value_buffer[index] + self.value_buffer[index + 1]) as f32 / 2.0);
+        }
     }
 
     pub fn average(&self) -> Option<f32> {
